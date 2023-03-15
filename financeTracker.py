@@ -3,7 +3,7 @@ import numpy as np
 import glob
 import os 
 
-from shared_functions import df_manipulations
+from shared_functions import df_manipulations,manual_trans_category
 
 
 def main():
@@ -13,6 +13,8 @@ def main():
 
     transaction_df = df_manipulations.read_transactions_to_mainFrame(main_path=path,fType='.csv')
     print(transaction_df)
+
+    manual_trans_category.manual_categorize_transactions(raw_transaction_data=transaction_df)
 
 
 if __name__ == "__main__":
