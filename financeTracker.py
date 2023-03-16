@@ -14,8 +14,9 @@ def main():
     transaction_df = df_manipulations.read_transactions_to_mainFrame(main_path=path,fType='.csv')
     print(transaction_df)
 
-    manual_trans_category.manual_categorize_transactions(raw_transaction_data=transaction_df)
+    manual_trans_category.count_most_frequent_words(data=transaction_df,df_col_to_countFreqWords="Payee")
 
+    ## TODO: create knn model with identified training data to classify bofa transactions by category 
 
 if __name__ == "__main__":
     print('this is a test')
