@@ -4,6 +4,7 @@ from collections import Counter
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split as tss
 from sklearn.preprocessing import LabelEncoder
+from sklearn.svm import LinearSVC
 
 def manual_categorize_transactions(raw_transaction_data:pd.DataFrame) -> pd.DataFrame:
     ''' Manually categorize [raw_transaction_data] for ML training data '''
@@ -67,3 +68,24 @@ def transaction_knn_model(training_dataset:pd.DataFrame,actual_dataset:pd.DataFr
     df_predictedCategories = pd.DataFrame(data=data_predictedCategories_forTrans)
     df_predictedCategories.to_csv(path_or_buf='/Users/samchernov/Desktop/Personal/Financials/Transaction_Export/pFi/predictedCats_knn.csv')
     return("Test succeeded") """
+
+def transaction_LSVC_model(training_dataset:pd.DataFrame,actual_dataset:pd.DataFrame) :
+    '''Run knn algo on training_dataset to try to predict values in actual_dataset'''
+    # Create encoder labels for each categorical dataset
+    lblEncodeX = LabelEncoder()
+    lblEncodey = LabelEncoder()
+    lblEncodeact = LabelEncoder()
+    
+    # Split training data for model based on word frequency in transactions
+    X = lblEncodeX.fit_transform(training_dataset["nameTrans"]).reshape(-1,1)  
+    y = lblEncodey.fit_transform(training_dataset["category"]).reshape(-1,1).ravel() # needed for proper shaping to the model
+    x_actual = lblEncodeact.fit_transform(actual_dataset["Payee"]).reshape(-1,1) # actual dataset to predict on
+    X_train,X_test,y_train,y_test = tss(X,y,test_size=0.2,random_state=1,stratify=y) # random state - matches the training set breakdown in\
+        # test, stratify ensures breakdown across all columns 
+
+    # Instatiate linear SVC 
+    lsvc = LinearSVC(verbose=0, max_iter=2000)
+    lsvc.fit(X_train,y_train)
+
+    print(lsvc.score(X_test,y_test))
+    

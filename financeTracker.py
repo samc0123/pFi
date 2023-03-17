@@ -17,8 +17,8 @@ def main():
 
     #manual_trans_category.count_most_frequent_words(data=transaction_df,df_col_to_countFreqWords="Payee",countWords=400)
 
-    training_data_knn = pd.read_csv(filepath_or_buffer='/Users/samchernov/Desktop/Personal/Financials/Transaction_Export/pFi/trans_sheets_train/predictedCats_knn.csv')
-    msg_test = manual_trans_category.transaction_knn_model(training_dataset=training_data_knn,actual_dataset=transaction_df)
+    training_data = pd.read_csv(filepath_or_buffer='/Users/samchernov/Desktop/Personal/Financials/Transaction_Export/pFi/trans_sheets_train/predictedCats_knn.csv')
+    msg_test = manual_trans_category.transaction_knn_model(training_dataset=training_data,actual_dataset=transaction_df)
 
 if __name__ == "__main__":
     print('this is a test')
