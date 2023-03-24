@@ -16,10 +16,14 @@ def main():
     transaction_df = df_manipulations.read_transactions_to_mainFrame(main_path=path_test,fType='.csv')
     print(transaction_df)
 
-    #manual_trans_category.count_most_frequent_words(data=transaction_df,df_col_to_countFreqWords="Payee",countWords=400)
-
+    columns_indep_dep = {
+        'training_independent':'nameTrans',
+        'training_dependent':'category',
+        'actual_independent':'merchant'
+    }
     training_data = pd.read_csv(filepath_or_buffer=path_training_file)
-    msg_test = manual_trans_category.transaction_knn_model(training_dataset=training_data,actual_dataset=transaction_df)
+    msg_test = manual_trans_category.transaction_knn_model(training_dataset=training_data,actual_dataset=transaction_df,columns_indep_dep = columns_indep_dep)
+    msg_test.to_csv(path_or_buf='/Users/samchernov/Desktop/Personal/Financials/Transaction_Export/pFi/knnPredictions.csv')
 
 if __name__ == "__main__":
     print('this is a test')
