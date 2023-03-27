@@ -22,48 +22,52 @@ def transaction_knn_model(training_dataset:pd.DataFrame,actual_dataset:pd.DataFr
     '''Run knn algo on training_dataset to try to predict values in actual_dataset. columns_indep_dep contain names
     of columns to work with: {'training_independent':'x','training_dependent','y','actual_indepedent':'z'.} Training_dependent
     will be name of column in outputdb '''
-    # Create encoder labels for each categorical dataset
-    lblEncodeX = LabelEncoder()
+    # Create encoders for each categorical dataset
     lblEncodey = LabelEncoder()
-    lblEncodeact = LabelEncoder()
     ordEncoderX = preprocessing.OrdinalEncoder(handle_unknown='use_encoded_value',unknown_value=-1)
-    ordEncoderXAct = preprocessing.OrdinalEncoder(handle_unknown='use_encoded_value',unknown_value=-1)
 
-    # Assign names for columns
+    # Assign names for columns from training and actual datasets
     training_independent_col = columns_indep_dep['training_independent']
     dependent_col = columns_indep_dep['training_dependent']
     actual_independent_col = columns_indep_dep['actual_independent']
 
     
-    # Split training data for model based on word frequency in transactions
+    # Assign dictionarty with values for training and actual transactions
     bank_trans_data ={
         'training_trans': training_dataset[training_independent_col],
         'trans_to_predict': actual_dataset[actual_independent_col]
     }
-    bank_trans_array = np.concatenate((training_dataset[training_independent_col],actual_dataset[actual_independent_col]),axis=None)
     bank_trans_df = pd.DataFrame(bank_trans_data)
+
+    # Create array of bank transactions to encode
+    bank_trans_array = np.concatenate((training_dataset[training_independent_col],actual_dataset[actual_independent_col]),axis=None)
+    
     # Encode transactions from banking statements 
     ordEncoderX.fit(bank_trans_array.reshape(-1,1))
     bank_trans_df[['training_trans']] = ordEncoderX.transform(bank_trans_df[['training_trans']])
     bank_trans_df[['trans_to_predict']] = ordEncoderX.transform(bank_trans_df[['trans_to_predict']])
    
-    
+    # Create training and test split 
+
+    # Training transactions
     X = np.asarray(bank_trans_df['training_trans'])
-    X = np.delete(X,np.where(X == -1)).reshape(-1,1)
+    X = np.delete(X,np.where(X == -1)).reshape(-1,1) # Remove unknowns from training data
+    # Training outcome data
     y = lblEncodey.fit_transform(training_dataset[dependent_col]).reshape(-1,1).ravel() # needed for proper shaping to the model
+    # Actual transactions to predict 
     x_actual = np.asarray(bank_trans_df['trans_to_predict'])
     x_actual = np.delete(x_actual,np.where(x_actual == -1)).reshape(-1,1)
+    # Create test train split
     X_train,X_test,y_train,y_test = tss(X,y,test_size=0.2)
 
     # Create instance of the knn algorithm
-    knn = KNeighborsClassifier(n_neighbors=1)
+    knn = KNeighborsClassifier(n_neighbors=1,metric="euclidean")
     knn.fit(X_train,y_train)
 
-    
     # Test model accuracy 
     print(knn.score(X_test,y_test))
 
-    # Add output column to actual dataframe
+    # Add category predictions column to actual dataframe
     actual_dataset[dependent_col] = lblEncodey.inverse_transform(knn.predict(x_actual))
     actual_dataset['amount'] = pd.to_numeric(actual_dataset['amount'])
     actual_dataset['datePosted'] = pd.to_datetime(actual_dataset['datePosted'])
