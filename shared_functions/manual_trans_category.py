@@ -71,8 +71,8 @@ def transaction_knn_model(training_dataset:pd.DataFrame,actual_dataset:pd.DataFr
     actual_dataset[dependent_col] = lblEncodey.inverse_transform(knn.predict(x_actual))
     actual_dataset['amount'] = pd.to_numeric(actual_dataset['amount'])
     actual_dataset['datePosted'] = pd.to_datetime(actual_dataset['datePosted'])
-    actual_dataset['year'] = pd.DatetimeIndex(actual_dataset['datePosted']).year
-    actual_dataset['month'] = pd.DatetimeIndex(actual_dataset['datePosted']).month
+    actual_dataset['year'] = pd.DatetimeIndex(actual_dataset['datePosted']).year # add year to summarize
+    actual_dataset['month'] = pd.DatetimeIndex(actual_dataset['datePosted']).month # add month to summarize 
     actual_dataset.sort_values(by='datePosted',inplace=True)
     actual_dataset.reset_index(inplace=True,drop=True)
     return actual_dataset
