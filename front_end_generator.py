@@ -23,7 +23,7 @@ class datesFromSlider:
 
     def checkValidConstructor(self):
         self.from_date = pd.to_datetime(arg=f'{self.from_year}-{self.from_month}-01')
-        self.to_date = pd.to_datetime(arg=f'{self.to_year}-{self.to_month}-30')
+        self.to_date = pd.to_datetime(arg=f'{self.to_year}-{self.to_month}-28')
 
         if self.from_date > self.to_date:
             messagebox.showerror(title='Invalid Date Selection',message='From Date must be less than or equal to to date')
@@ -46,34 +46,48 @@ def retrieveDateValues_fromSliders():
     sliderVals.checkValidConstructor()
     sliderVals.printVals()
 
+def filter_df_by_date(df_to_filter:pd.DataFrame) -> pd.DataFrame:
+    '''Filter dataframe based on attributes set in the slider values'''
+    df_to_filter['day'] = int(1) # add day to convert to datetime
+    df_to_filter['date_filter'] = pd.to_datetime(dict(\
+        year=df_to_filter.year, \
+            month=df_to_filter.month, \
+                day=df_to_filter.day))
+    df_to_filter = df_to_filter[(\
+        df_to_filter['date_filter'] >= sliderVals.from_date\
+    ) & (\
+        df_to_filter['date_filter'] <= sliderVals.to_date)]
+    
+    return(df_to_filter)
+
 def createPlot_catSpend_bar():
     '''Generate bar graph for category spending'''
     ## Spending by category 
 
     # Created category grouping dataframe 
     df_cat_and_month_grouped = group_trans_month_cat(df_transactions=df_masterTrans)
-    print(df_cat_and_month_grouped)
+    df_cat_filtered = filter_df_by_date(df_to_filter=df_cat_and_month_grouped)
+    
+    print(df_cat_filtered)
     # Create bar graph to plot
-    # TODO: this method is failing to filter the dates, need to work that out in the plotter method generateBarChart
-    figBar = generateBarChart(from_date=sliderVals.from_date,to_date=sliderVals.to_date,\
-         df_trans_visualize=df_cat_and_month_grouped)
+    figBar = generateBarChart(df_trans_visualize=df_cat_filtered)
 
     # Add canvas to display graph
     canvas = FigureCanvasTkAgg(figBar,master = window)  
     canvas.draw()
     canvas.get_tk_widget().grid(row=0,column=3,rowspan=3,pady=30)
 
-    # Adding the toolbar 
-    toolbar = NavigationToolbar2Tk(canvas, window)
-    toolbar.update()
-    canvas.get_tk_widget().grid(row=0,column=3,rowspan=3,pady=30)
+def createPlot_freeCash_pie():
+    '''Create a pie chart of free cash flow per month'''
 
-
-
-
-
-
+    # Created category grouping dataframe 
+    df_cat_and_month_grouped = group_trans_month_cat(df_transactions=df_masterTrans)
+    df_cat_filtered = filter_df_by_date(df_to_filter=df_cat_and_month_grouped)
     
+    print(df_cat_filtered)
+
+    figPie = None # TODO: finish plotting the pie chart for free cash flow
+
 
 
 # Import master_transFile for information querying 
@@ -115,9 +129,13 @@ getDatesvals_but.grid(column=0,row=2,columnspan=2)
 
 ### Display three visuals: spending by category, spending by month, spending by month by category 
 
-# Create button and canvas on window
+# Bar chart category per month
 but_generate_catSpend_bar = Button(master=window,text='Generate Category Spending Chart',command=createPlot_catSpend_bar)
 but_generate_catSpend_bar.grid(row=4,column=0,columnspan=2)
+
+# Pie chart free cash flow
+but_generate_catSpend_bar = Button(master=window,text='Generate Free Cash Flow',command=createPlot_freeCash_pie)
+but_generate_catSpend_bar.grid(row=5,column=0,columnspan=2)
 
 
 

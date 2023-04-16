@@ -65,17 +65,16 @@ def read_transactions_to_mainFrame(main_path:str,fType:str) -> pd.DataFrame:
         temp_df.columns = final_cols 
 
         # Find the earliest and latest dates, alert of potential duplicate statement
-        earliest_date = temp_df['datePosted'].min()
-        latest_date = temp_df['datePosted'].max()
-        print(latest_dates_added_master_file[statement_type])
-        if pd.to_datetime(earliest_date) < pd.to_datetime(latest_dates_added_master_file\
-            [statement_type]):
+        earliest_date = pd.to_datetime(temp_df['datePosted'].min())
+        latest_date = pd.to_datetime(temp_df['datePosted'].max())
+        latest_date_for_curStatement = pd.to_datetime(latest_dates_added_master_file[statement_type])
+        if earliest_date < latest_date_for_curStatement:
             print('Warning: Potentially duplicate statement. Please review\
                 master transaction file manually.')
             input('Press Enter to continue...')
         # Modify the current statements latest date as the current latest date
-        if latest_dates_added_master_file[statement_type] < latest_date:
-            latest_dates_added_master_file[statement_type] < latest_date
+        if latest_date_for_curStatement < latest_date:
+            latest_dates_added_master_file[statement_type] = latest_date.strftime(format="%Y-%m-%d")
 
         # Add current df to be concated for final list of transactions
         li.append(temp_df)
