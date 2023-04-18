@@ -9,7 +9,11 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
 
 from predictionGrouping import group_trans_month_cat
-from visualizeTrans import generateBarChart
+from visualizeTrans import generateBarChart,generateLine_freeCash
+
+def filter_rows_by_values(df, col, values):
+    return df[~df[col].isin(values)]
+
 
 class datesFromSlider:
     def __init__(self,from_month = None,from_year = None,to_month = None,to_year = None) -> None:
@@ -67,26 +71,34 @@ def createPlot_catSpend_bar():
     # Created category grouping dataframe 
     df_cat_and_month_grouped = group_trans_month_cat(df_transactions=df_masterTrans)
     df_cat_filtered = filter_df_by_date(df_to_filter=df_cat_and_month_grouped)
+    df_cat_filtered = filter_rows_by_values(df_cat_filtered,\
+        "category",["Transfer Between Accounts","Payment",\
+            "Paycheck"])
     
-    print(df_cat_filtered)
     # Create bar graph to plot
+    
     figBar = generateBarChart(df_trans_visualize=df_cat_filtered)
 
     # Add canvas to display graph
     canvas = FigureCanvasTkAgg(figBar,master = window)  
     canvas.draw()
-    canvas.get_tk_widget().grid(row=0,column=3,rowspan=3,pady=30)
+    canvas.get_tk_widget().grid(row=0,column=6,rowspan=3,pady=30)
 
-def createPlot_freeCash_pie():
+def createPlot_freeCash_line():
     '''Create a pie chart of free cash flow per month'''
 
     # Created category grouping dataframe 
     df_cat_and_month_grouped = group_trans_month_cat(df_transactions=df_masterTrans)
     df_cat_filtered = filter_df_by_date(df_to_filter=df_cat_and_month_grouped)
-    
-    print(df_cat_filtered)
+   
+    df_cat_filtered = filter_rows_by_values(df_cat_filtered,\
+        "category",["Transfer Between Accounts","Payment"])
 
-    figPie = None # TODO: finish plotting the pie chart for free cash flow
+    figPie = generateLine_freeCash(df_trans_visualize=df_cat_filtered)
+
+    canvas = FigureCanvasTkAgg(figPie,master=window)
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=0,column=3,rowspan=3,pady=30)
 
 
 
@@ -96,7 +108,7 @@ df_masterTrans = pd.read_csv(filepath_or_buffer=masterTransPath)
 
 # Intialize the tkinter window
 window = Tk()
-window.geometry('1200x800')
+window.geometry('1500x800')
 window.minsize(width=400,height=400)
 window.maxsize(width=1600,height=800)
 window.title('Bob the Budgetary')
@@ -134,7 +146,7 @@ but_generate_catSpend_bar = Button(master=window,text='Generate Category Spendin
 but_generate_catSpend_bar.grid(row=4,column=0,columnspan=2)
 
 # Pie chart free cash flow
-but_generate_catSpend_bar = Button(master=window,text='Generate Free Cash Flow',command=createPlot_freeCash_pie)
+but_generate_catSpend_bar = Button(master=window,text='Generate Free Cash Flow',command=createPlot_freeCash_line)
 but_generate_catSpend_bar.grid(row=5,column=0,columnspan=2)
 
 
