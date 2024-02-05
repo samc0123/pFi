@@ -22,7 +22,7 @@ def group_trans_month_cat(df_transactions:pd.DataFrame) -> pd.DataFrame:
 
 def main():
     # Transaction file location
-    path_transFolder = r'/Users/samchernov/Desktop/Personal/Financials/Transaction_Export/pFi/Master_transaction_file/'
+    path_transFolder = os.environ.get('PATH_TRANS_FOLDER')
 
     # Group by month and category
     grouped_df = group_trans_month_cat(path_masterTrans=path_transFolder+'master_transactions_manReview.csv')
