@@ -15,8 +15,8 @@ from shared_functions import df_manipulations,manual_trans_category
 def main():
     # Import all csv files into dataframe
     print("test entering main")
-    path_master_transFile = os.environ.get('PATH_MASTER)
-    path_newBankStatements = os.environ.get('PATH_NEW_TRANS)
+    path_master_transFile = os.environ.get('PATH_MASTER')
+    path_newBankStatements = os.environ.get('PATH_NEW_TRANS')
     testing_file_path = os.environ.get('PATH_TESTING_FILE')
 
     transaction_df = df_manipulations.read_transactions_to_mainFrame(main_path=path_newBankStatements,fType='.csv')
